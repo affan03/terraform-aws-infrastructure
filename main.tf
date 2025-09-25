@@ -211,7 +211,7 @@ resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.app_alb.arn
   port              = 443
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
   certificate_arn   = var.acm_certificate_arn
 
   default_action {
@@ -362,114 +362,11 @@ resource "aws_vpc_endpoint" "interface_endpoints" {
   tags                = { Name = "${each.key}-endpoint" }
 }
 
-# CodeDeploy
-resource "aws_iam_role" "codedeploy_role" {
-  name = var.codedeploy_role_name
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Action = "sts:AssumeRole",
-      Principal = { Service = "codedeploy.amazonaws.com" },
-      Effect   = "Allow",
-      Sid      = ""
-    }]
-  })
-}
 
-resource "aws_iam_role_policy_attachment" "codedeploy_attach" {
-  role       = aws_iam_role.codedeploy_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
-}
 
-resource "aws_codedeploy_app" "app" {
-  name             = var.codedeploy_app_name
-  compute_platform = "Server"
-}
 
-resource "aws_codedeploy_deployment_group" "dg" {
-  app_name              = aws_codedeploy_app.app.name
-  deployment_group_name = var.codedeploy_group_name
-  service_role_arn      = aws_iam_role.codedeploy_role.arn
 
-  autoscaling_groups = [aws_autoscaling_group.asg.name]
 
-  deployment_style {
-    deployment_type   = "IN_PLACE"
-    deployment_option = "WITHOUT_TRAFFIC_CONTROL"
-  }
 
-  load_balancer_info {
-    target_group_info {
-      name = aws_lb_target_group.tg.name
-    }
-  }
-}
 
-# CodePipeline
-resource "aws_iam_role" "codepipeline_role" {
-  name = var.codepipeline_role_name
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Action = "sts:AssumeRole",
-      Principal = { Service = "codepipeline.amazonaws.com" },
-      Effect   = "Allow",
-      Sid      = ""
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "codepipeline_policy" {
-  role       = aws_iam_role.codepipeline_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSCodePipelineFullAccess"
-}
-
-resource "aws_codepipeline" "pipeline" {
-  name     = var.pipeline_name
-  role_arn = aws_iam_role.codepipeline_role.arn
-
-  artifact_store {
-    location = aws_s3_bucket.video_bucket.bucket
-    type     = "S3"
-  }
-
-  stage {
-    name = "Source"
-
-    action {
-      name             = "Source"
-      category         = "Source"
-      owner            = "ThirdParty"
-      provider         = "GitHub"
-      version          = "1"
-      output_artifacts = ["source_output"]
-
-      configuration = {
-        Owner      = var.github_repo_owner
-        Repo       = var.github_repo_name
-        Branch     = var.github_repo_branch
-        OAuthToken = var.github_token
-      }
-    }
-  }
-
-  stage {
-    name = "Deploy"
-
-    action {
-      name            = "CodeDeploy"
-      category        = "Deploy"
-      owner           = "AWS"
-      provider        = "CodeDeploy"
-      input_artifacts = ["source_output"]
-      version         = "1"
-
-      configuration = {
-        ApplicationName     = aws_codedeploy_app.app.name
-        DeploymentGroupName = aws_codedeploy_deployment_group.dg.deployment_group_name
-      }
-    }
-  }
-}
