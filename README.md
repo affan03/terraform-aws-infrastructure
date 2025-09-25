@@ -241,32 +241,17 @@ module "prod_web_app" {
 
 | Output | Description |
 |--------|-------------|
-| `vpc_id` | ID of the VPC |
-| `vpc_cidr_block` | CIDR block of the VPC |
-| `public_subnet_ids` | IDs of the public subnets |
-| `private_subnet_ids` | IDs of the private subnets |
 | `alb_dns_name` | DNS name of the Application Load Balancer |
-| `alb_zone_id` | Zone ID of the Application Load Balancer |
-| `alb_arn` | ARN of the Application Load Balancer |
-| `target_group_arn` | ARN of the Target Group |
-| `autoscaling_group_id` | Auto Scaling Group ID |
-| `autoscaling_group_arn` | Auto Scaling Group ARN |
-| `launch_template_id` | ID of the Launch Template |
-| `s3_bucket_id` | Name of the S3 bucket |
-| `s3_bucket_arn` | ARN of the S3 bucket |
-| `sqs_queue_url` | URL of the SQS queue |
-| `sqs_queue_arn` | ARN of the SQS queue |
-| `ec2_role_arn` | ARN of the EC2 IAM role |
-| `ec2_instance_profile_name` | Name of the EC2 instance profile |
-| `developer_user_names` | Names of the developer IAM users |
-| `alb_security_group_id` | ID of the ALB security group |
-| `ec2_security_group_id` | ID of the EC2 security group |
-| `vpce_security_group_id` | ID of the VPC Endpoint security group |
-| `s3_vpc_endpoint_id` | ID of the S3 VPC Endpoint |
-| `interface_vpc_endpoint_ids` | IDs of the interface VPC endpoints |
-| `internet_gateway_id` | ID of the Internet Gateway |
-| `nat_gateway_id` | ID of the NAT Gateway |
-| `nat_gateway_public_ip` | Public IP of the NAT Gateway |
+| `bucket_name` | Name of the S3 bucket used for video generation |
+| `queue_url` | URL of the SQS queue for video generation |
+| `asg_name` | Name of the Auto Scaling Group |
+| `developer_iam_users` | List of IAM developer usernames |
+| `vpc_id` | ID of the main VPC |
+| `public_subnet_ids` | List of public subnet IDs |
+| `private_subnet_ids` | List of private subnet IDs |
+| `ec2_security_group_id` | Security group ID for EC2 instances |
+| `alb_security_group_id` | Security group ID for ALB |
+| `launch_template_id` | ID of the EC2 Launch Template |
 
 ## Key Features
 

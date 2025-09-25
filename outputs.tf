@@ -53,7 +53,3 @@ output "launch_template_id" {
   value       = aws_launch_template.lt.id
 }
 
-output "codepipeline_url" {
-  description = "Name of the created CodePipeline (can be viewed in AWS Console)"
-  value       = aws_codepipeline.pipeline.name
-}
